@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css" />
+
+		<script defer src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.8/sjcl.min.js"></script>
+		<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+		<script defer src="options.js"></script>
+	</head>
+
+	<body>
+		<div id="app" class="container">
+			<template v-for='field of Object.keys(plain)'>
+				<div class="field">
+					<label class="label">{{ plain[field].label }}</label>
+					<div class="control">
+						<input v-if="plain[field].type != 'textarea'" v-model="plain[field].value" class="input" v-bind:type="plain[field].type" v-bind:placeholder="plain[field].label" />
+						<textarea v-else v-model="plain[field].value" class="textarea" v-bind:placeholder="plain[field].label"></textarea>
+					</div>
+				</div>
+			</template>
+
+			<div v-if="password && isPasswordCorrect">
+				<template v-for='field of Object.keys(encrypted)'>
+					<div class="field is-grouped">
+						<label class="label">{{ encrypted[field].label }}</label>
+						<a class="delete" style="margin:0 0 0 5px" v-on:click="remove(field)"></a>
+					</div>
+					<div class="field has-addons">
+						<div class="control is-expanded">
+							<input v-model="encrypted[field].value" class="input" v-bind:type="encrypted[field].type" v-bind:placeholder="encrypted[field].label" />
+						</div>
+						<div class="control">
+							<a v-if="encrypted[field].type == 'link'" v-bind:href="encrypted[field].value" class="button is-info">Go</a>
+							<a v-else class="button is-info" v-on:click="copy(encrypted[field].value)">Copy</a>
+						</div>
+					</div>
+				</template>
+				<div class="field is-grouped">
+					<div class="control">
+						<button class="button" v-on:click="save()">Save</button>
+					</div>
+					<div class="control">
+						<button class="button" v-on:click="load()">Load</button>
+					</div>
+					<div class="control">
+						<button class="button" v-on:click="add()">Add</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
