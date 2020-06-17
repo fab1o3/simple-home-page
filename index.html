@@ -2,6 +2,9 @@
 <html>
 
 	<head>
+		<meta charset="utf-8">
+    		<meta name="viewport" content="width=device-width, initial-scale=1">
+    		<title>Notes</title>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css" />
 
 		<script defer src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
@@ -12,7 +15,11 @@
 	</head>
 
 	<body>
+		<section class="section">
 		<div id="app" class="container">
+			<h1 class="title">
+                	Notes
+            		</h1>
 			<template v-for='field of Object.keys(plain)'>
 				<div class="field">
 					<label class="label">{{ plain[field].label }}</label>
@@ -52,6 +59,7 @@
 				</div>
 			</div>
 		</div>
+		</section>
 	</body>
-
+	
 </html>
