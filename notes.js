@@ -35,16 +35,19 @@ var app = new Vue({
                 this.password = result.value;
 
                 if (localStorage.getItem('encrypted')) {
-					try {
-						this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
-						this.isPasswordCorrect = true;
-						this.init();
-					}
-					catch {
-						this.isPasswordCorrect = false;
-						console.log('Password is wrong!');
-					}
-                }
+			try {
+				this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
+				this.isPasswordCorrect = true;
+				this.init();
+			}
+			catch {
+				this.isPasswordCorrect = false;
+				console.log('Password is wrong!');
+			}
+                } else {
+			this.isPasswordCorrect = true;
+			this.init();
+		}
             });
         },
         methods: {
