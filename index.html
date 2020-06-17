@@ -41,7 +41,7 @@
 							<input v-model="encrypted[field].value" class="input" v-bind:type="encrypted[field].type" v-bind:placeholder="encrypted[field].label" />
 						</div>
 						<div class="control">
-							<a v-if="encrypted[field].type == 'link'" v-bind:href="encrypted[field].value" class="button is-info">Go</a>
+							<a v-if="encrypted[field].type == 'link'" v-bind:href="encrypted[field].value" target="_blank" class="button is-info">Go</a>
 							<a v-else class="button is-info" v-on:click="copy(encrypted[field].value)">Copy</a>
 						</div>
 					</div>
