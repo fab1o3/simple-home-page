@@ -62,7 +62,10 @@ var app = new Vue({
                         localStorage.setItem(key, remoteStorage[key]);
                     });
                     Swal.fire('Local storage updated');
-                });
+                })
+		.catch((error) => {
+	                Swal.fire(JSON.stringify(error));
+	        });
             },
             save: function () {
                 Object.keys(this.plain).forEach(element => {
@@ -117,3 +120,4 @@ var app = new Vue({
             }
         }
     });
+
