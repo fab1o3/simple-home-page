@@ -40,7 +40,10 @@ var app = new Vue({
                         this.init();
                     } catch {
                         this.isPasswordCorrect = false;
-                        console.log('Password is wrong!');
+                        Swal.fire({
+				icon: 'error',
+				title: 'Password is not correct!'
+			});
                     }
                 } else {
                     this.isPasswordCorrect = true;
