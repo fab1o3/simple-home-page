@@ -2,16 +2,15 @@ var app = new Vue({
         el: '#app',
         data: {
             password: null,
-			isPasswordCorrect: false,
+            isPasswordCorrect: false,
             plain: {
                 'jsonStorage': {
-                    'value': '',
+                    'value': null,
                     'label': 'JSON Storage URL',
                     'type': 'url'
                 }
             },
-            encrypted: {
-            }
+            encrypted: {}
         },
         mounted: function () {
             Swal.fire({
@@ -35,19 +34,18 @@ var app = new Vue({
                 this.password = result.value;
 
                 if (localStorage.getItem('encrypted')) {
-			try {
-				this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
-				this.isPasswordCorrect = true;
-				this.init();
-			}
-			catch {
-				this.isPasswordCorrect = false;
-				console.log('Password is wrong!');
-			}
+                    try {
+                        this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
+                        this.isPasswordCorrect = true;
+                        this.init();
+                    } catch {
+                        this.isPasswordCorrect = false;
+                        console.log('Password is wrong!');
+                    }
                 } else {
-			this.isPasswordCorrect = true;
-			this.init();
-		}
+                    this.isPasswordCorrect = true;
+                    this.init();
+                }
             });
         },
         methods: {
@@ -92,7 +90,7 @@ var app = new Vue({
                     '<option value="url">url</option>' +
                     '<option value="textarea">textarea</option>' +
                     '<option value="password">password</option>' +
-					'<option value="link">link</option>' +
+                    '<option value="link">link</option>' +
                     '</select>',
                     showCancelButton: true,
                     focusConfirm: false,
