@@ -46,16 +46,16 @@
 							</div>
 						</div>
 					</template>
-				</div>
-				<div v-if="plain['jsonStorage'].value" class="field is-grouped">
-					<div class="control">
-						<button class="button" v-on:click="save()">Save</button>
-					</div>
-					<div class="control">
-						<button class="button" v-on:click="load()">Load</button>
-					</div>
-					<div class="control">
-						<button class="button" v-on:click="add()">Add</button>
+					<div v-if="plain['jsonStorage'].value" class="field is-grouped">
+						<div class="control">
+							<button class="button" v-on:click="save()">Save</button>
+						</div>
+						<div class="control">
+							<button class="button" v-on:click="load()">Load</button>
+						</div>
+						<div class="control">
+							<button class="button" v-on:click="add()">Add</button>
+						</div>
 					</div>
 				</div>
 			</div>
