@@ -64,7 +64,10 @@ var app = new Vue({
                     Swal.fire('Local storage updated');
                 })
 		.catch((error) => {
-	                Swal.fire(JSON.stringify(error));
+	        	Swal.fire({
+				icon: 'error',
+				text: JSON.stringify(error)
+			});
 	        });
             },
             save: function () {
