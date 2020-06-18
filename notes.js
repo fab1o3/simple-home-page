@@ -5,7 +5,7 @@ var app = new Vue({
 			isPasswordCorrect: false,
             plain: {
                 'jsonStorage': {
-                    'value': 'https://extendsclass.com/api/json-storage/bin/ecefabe',
+                    'value': '',
                     'label': 'JSON Storage URL',
                     'type': 'url'
                 }
