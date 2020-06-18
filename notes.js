@@ -79,7 +79,13 @@ var app = new Vue({
 
                 axios.put(this.plain['jsonStorage'].value, localStorage).then(function (response) {
                     Swal.fire('Remote storage updated');
-                });
+                })
+		.catch((error) => {
+	        	Swal.fire({
+				icon: 'error',
+				text: JSON.stringify(error)
+			});
+	        });
             },
             copy: function (text) {
                 navigator.clipboard.writeText(text).then(function () {
