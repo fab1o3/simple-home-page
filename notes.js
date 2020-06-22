@@ -35,7 +35,6 @@ var app = new Vue({
 
                 if (localStorage.getItem('encrypted')) {
                     try {
-                        this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
                         this.isPasswordCorrect = true;
                         this.init();
                     } catch {
@@ -56,6 +55,7 @@ var app = new Vue({
                 Object.keys(this.plain).forEach(element => {
                     this.plain[element].value = localStorage.getItem(element);
                 });
+		this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
             },
             load: function () {
                 axios.get(this.plain['jsonStorage'].value).then((response) => {
@@ -65,7 +65,8 @@ var app = new Vue({
                         localStorage.setItem(key, remoteStorage[key]);
                     });
                     Swal.fire('Local storage updated');
-			this.$forceUpdate();
+	            this.init();
+		    this.$forceUpdate();
                 })
 		.catch((error) => {
 	        	Swal.fire({
