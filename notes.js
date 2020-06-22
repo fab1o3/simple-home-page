@@ -65,6 +65,7 @@ var app = new Vue({
                         localStorage.setItem(key, remoteStorage[key]);
                     });
                     Swal.fire('Local storage updated');
+			this.$forceUpdate();
                 })
 		.catch((error) => {
 	        	Swal.fire({
