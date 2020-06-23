@@ -33,7 +33,7 @@
 				<div v-if="password && isPasswordCorrect">
 					<template v-for='field of Object.keys(encrypted)'>
 						<div class="field is-grouped">
-							<label class="label">{{ encrypted[field].label }}</label>
+							<label class="label" v-bind:title="encrypted[field].name">{{ encrypted[field].label }}</label>
 							<a class="delete" style="margin:0 0 0 5px" v-on:click="remove(field)"></a>
 						</div>
 						<div class="field has-addons">
