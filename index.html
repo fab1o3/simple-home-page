@@ -31,7 +31,7 @@
 				</template>
 
 				<div v-if="password && isPasswordCorrect">
-					<template v-for='field of Object.keys(encrypted)'>
+					<template v-for='field of Object.keys(encrypted).sort()'>
 						<div class="field is-grouped">
 							<label class="label">{{ encrypted[field].label }}</label>
 							<a class="delete" style="margin:0 0 0 5px" v-on:click="remove(field)"></a>
