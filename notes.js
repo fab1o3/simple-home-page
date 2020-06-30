@@ -135,3 +135,8 @@ var app = new Vue({
         }
     });
 
+setInterval(refresh, 300000);
+
+function refresh() {
+    location.reload();
+}
