@@ -1,1 +1,1 @@
-Simple HTML/JS page to create notes (text) that sync with remote storage
+Simple HTML/JS page to create text notes that syncs with json storage
