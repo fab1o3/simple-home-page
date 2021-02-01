@@ -40,9 +40,9 @@ var app = new Vue({
                     } catch {
                         this.isPasswordCorrect = false;
                         Swal.fire({
-				icon: 'error',
-				title: 'Password is not correct!'
-			});
+							icon: 'error',
+							title: 'Password is not correct!'
+						});
                     }
                 } else {
                     this.isPasswordCorrect = true;
@@ -55,7 +55,7 @@ var app = new Vue({
                 Object.keys(this.plain).forEach(element => {
                     this.plain[element].value = localStorage.getItem(element);
                 });
-		this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
+				this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
             },
             load: function () {
                 axios.get(this.plain['jsonStorage'].value).then((response) => {
@@ -65,15 +65,15 @@ var app = new Vue({
                         localStorage.setItem(key, remoteStorage[key]);
                     });
                     Swal.fire('Local storage updated');
-	            this.init();
-		    this.$forceUpdate();
+	            	this.init();
+		    		this.$forceUpdate();
                 })
-		.catch((error) => {
-	        	Swal.fire({
-				icon: 'error',
-				text: JSON.stringify(error)
-			});
-	        });
+				.catch((error) => {
+	        		Swal.fire({
+						icon: 'error',
+						text: JSON.stringify(error)
+					});
+	        	});
             },
             save: function () {
                 Object.keys(this.plain).forEach(element => {
@@ -85,12 +85,12 @@ var app = new Vue({
                 axios.put(this.plain['jsonStorage'].value, localStorage).then(function (response) {
                     Swal.fire('Remote storage updated');
                 })
-		.catch((error) => {
-	        	Swal.fire({
-				icon: 'error',
-				text: JSON.stringify(error)
-			});
-	        });
+				.catch((error) => {
+	        		Swal.fire({
+						icon: 'error',
+						text: JSON.stringify(error)
+					});
+	        	});
             },
             copy: function (text) {
                 navigator.clipboard.writeText(text).then(function () {
