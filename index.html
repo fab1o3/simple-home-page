@@ -1,31 +1,38 @@
 <!DOCTYPE html>
 <html>
 
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Notes</title>
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css" />
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Home</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css" />
 
-		<script defer src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
-		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
-		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.8/sjcl.min.js"></script>
-		<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
-		<script defer src="notes.js"></script>
-	</head>
+	<script defer src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+	<script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+	<script defer src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.8/sjcl.min.js"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+	<script defer src="app.js"></script>
+</head>
 
-	<body>
-		<section class="section">
-			<div id="app" class="container">
-				<h1 class="title">
-                	Notes
-				</h1>
+<body>
+	<section class="section">
+		<div id="app" class="container">
+			<div class="tabs">
+				<ul>
+					<li v-bind:class="isActive('news')" v-on:click="selectedTab = 'news'"><a>News</a></li>
+					<li v-bind:class="isActive('notes')" v-on:click="selectedTab = 'notes'"><a>Notes</a></li>
+					<li v-bind:class="isActive('settings')" v-on:click="selectedTab = 'settings'"><a>Settings</a></li>
+				</ul>
+			</div>
+			<div v-if="selectedTab === 'notes'">
 				<template v-for='field of Object.keys(plain)'>
 					<div class="field">
 						<label class="label">{{ plain[field].label }}</label>
 						<div class="control">
-							<input v-if="plain[field].type != 'textarea'" v-model="plain[field].value" class="input" v-bind:type="plain[field].type" v-bind:placeholder="plain[field].label" />
-							<textarea v-else v-model="plain[field].value" class="textarea" v-bind:placeholder="plain[field].label"></textarea>
+							<input v-if="plain[field].type != 'textarea'" v-model="plain[field].value" class="input"
+								v-bind:type="plain[field].type" v-bind:placeholder="plain[field].label" />
+							<textarea v-else v-model="plain[field].value" class="textarea"
+								v-bind:placeholder="plain[field].label"></textarea>
 						</div>
 					</div>
 				</template>
@@ -38,29 +45,47 @@
 						</div>
 						<div class="field has-addons">
 							<div class="control is-expanded">
-								<input v-model="encrypted[field].value" class="input" v-bind:type="encrypted[field].type" v-bind:placeholder="encrypted[field].label" />
+								<input v-model="encrypted[field].value" class="input"
+									v-bind:type="encrypted[field].type" v-bind:placeholder="encrypted[field].label" />
 							</div>
 							<div class="control">
-								<a v-if="encrypted[field].type == 'link'" v-bind:href="encrypted[field].value" target="_blank" class="button is-info">Go</a>
+								<a v-if="encrypted[field].type == 'link'" v-bind:href="encrypted[field].value"
+									target="_blank" class="button is-info">Go</a>
 								<a v-else class="button is-info" v-on:click="copy(encrypted[field].value)">Copy</a>
 							</div>
 						</div>
 					</template>
-					<div v-if="plain['jsonStorage'].value" class="field is-grouped">
-						<div class="control">
-							<button class="button" v-on:click="save()">Save</button>
-						</div>
-						<div class="control">
-							<button class="button" v-on:click="load()">Load</button>
-						</div>
+					<div class="field is-grouped">
 						<div class="control">
 							<button class="button" v-on:click="add()">Add</button>
 						</div>
 					</div>
 				</div>
 			</div>
-		</section>
-	</body>
+			<div v-if="selectedTab === 'settings'">
+				<template v-for='field of Object.keys(settings)'>
+					<div class="field">
+						<label class="label">{{ settings[field].label }}</label>
+						<div class="control">
+							<input v-if="settings[field].type != 'textarea'" v-model="settings[field].value"
+								class="input" v-bind:type="settings[field].type"
+								v-bind:placeholder="settings[field].label" />
+							<textarea v-else v-model="settings[field].value" class="textarea"
+								v-bind:placeholder="settings[field].label"></textarea>
+						</div>
+					</div>
+				</template>
+				<div class="field is-grouped">
+					<div class="control">
+						<button class="button" v-on:click="save()">Save</button>
+					</div>
+					<div v-if="settings['jsonStorage'].value" class="control">
+						<button class="button" v-on:click="load()">Load</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</body>
 
 </html>
-
