@@ -1,1 +1,1 @@
-Simple HTML/JS page to create text notes that syncs with json storage
+Simple HTML/JS page that syncs with json storage
