@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Home</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-tooltip@3.0.2/dist/css/bulma-tooltip.min.css" />
 
 	<script defer src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
 	<script defer src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
@@ -20,14 +21,53 @@
 			<div class="tabs">
 				<ul>
 					<li v-bind:class="isActive('news')" v-on:click="selectedTab = 'news'"><a>News</a></li>
+					<li v-bind:class="isActive('bookmarks')" v-on:click="selectedTab = 'bookmarks'"><a>Bookmars</a></li>
 					<li v-bind:class="isActive('notes')" v-on:click="selectedTab = 'notes'"><a>Notes</a></li>
 					<li v-bind:class="isActive('settings')" v-on:click="selectedTab = 'settings'"><a>Settings</a></li>
 				</ul>
 			</div>
+
+			<div v-if="selectedTab === 'bookmarks'">
+				<div class="columns">
+					<div class="column is-half">
+						<input class="input" placeholder="Category" v-model="newBookmark.category">
+					</div>
+				</div>
+				<div class="columns">
+					<div class="column is-half">
+						<input class="input" placeholder="Name" v-model="newBookmark.name" />
+					</div>
+				</div>
+				<div class="columns">
+					<div class="column">
+						<input class="input" type="url" placeholder="Insert bookmark" v-model="newBookmark.url">
+					</div>
+					<div class="column">
+						<button class="button" v-on:click="addBookmark()">New</button>
+					</div>
+				</div>
+				<ul id="bookmarks" v-for="(item, index) in sortedBookmarks">
+					<li>
+						<a v-bind:href="item.url" target="_blank" class="has-tooltip-bottom"
+							v-bind:data-tooltip="item.category">{{ item.name ? item.name : item.url }}</a>
+						<a class="delete" v-on:click="deleteBookmark(index)"></a>
+					</li>
+				</ul>
+			</div>
+
 			<div v-if="selectedTab === 'notes'">
+				<div class="field is-grouped">
+					<div class="control">
+						<button class="button" v-on:click="add()">Add</button>
+					</div>
+				</div>
+
 				<template v-for='field of Object.keys(plain)'>
-					<div class="field">
+					<div class="field is-grouped">
 						<label class="label">{{ plain[field].label }}</label>
+						<a class="delete" style="margin:0 0 0 5px" v-on:click="remove(field)"></a>
+					</div>
+					<div class="field">
 						<div class="control">
 							<input v-if="plain[field].type != 'textarea'" v-model="plain[field].value" class="input"
 								v-bind:type="plain[field].type" v-bind:placeholder="plain[field].label" />
@@ -41,7 +81,7 @@
 					<template v-for='field of Object.keys(encrypted).sort()'>
 						<div class="field is-grouped">
 							<label class="label" v-bind:title="field">{{ encrypted[field].label }}</label>
-							<a class="delete" style="margin:0 0 0 5px" v-on:click="remove(field)"></a>
+							<a class="delete" style="margin:0 0 0 5px" v-on:click="remove(field, true)"></a>
 						</div>
 						<div class="field has-addons">
 							<div class="control is-expanded">
@@ -55,14 +95,19 @@
 							</div>
 						</div>
 					</template>
-					<div class="field is-grouped">
-						<div class="control">
-							<button class="button" v-on:click="add()">Add</button>
-						</div>
-					</div>
 				</div>
 			</div>
+
 			<div v-if="selectedTab === 'settings'">
+				<div class="field is-grouped" v-if="settings['jsonStorage'].value">
+					<div class="control">
+						<button class="button" v-on:click="save()">Save to remote</button>
+					</div>
+					<div class="control">
+						<button class="button" v-on:click="load()">Load from remote</button>
+					</div>
+				</div>
+
 				<template v-for='field of Object.keys(settings)'>
 					<div class="field">
 						<label class="label">{{ settings[field].label }}</label>
@@ -75,14 +120,6 @@
 						</div>
 					</div>
 				</template>
-				<div class="field is-grouped">
-					<div class="control">
-						<button class="button" v-on:click="save()">Save</button>
-					</div>
-					<div v-if="settings['jsonStorage'].value" class="control">
-						<button class="button" v-on:click="load()">Load</button>
-					</div>
-				</div>
 			</div>
 		</div>
 	</section>

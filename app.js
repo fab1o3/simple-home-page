@@ -3,6 +3,9 @@ var app = new Vue({
     data: {
         password: null,
         isPasswordCorrect: false,
+        selectedTab: 'news',
+        bookmarks: [],
+        newBookmark: {},
         settings: {
             'jsonStorage': {
                 'value': null,
@@ -16,8 +19,49 @@ var app = new Vue({
             }
         },
         plain: {},
-        encrypted: {},
-        selectedTab: 'news'
+        encrypted: {}
+    },
+    watch: {
+        settings: {
+            handler(newValue, oldValue) {
+                localStorage.setItem('settings', JSON.stringify(newValue));
+            },
+            deep: true
+        },
+        bookmarks: {
+            handler(newValue, oldValue) {
+                localStorage.setItem('bookmarks', JSON.stringify(newValue));
+            },
+            deep: true
+        },
+        plain: {
+            handler(newValue, oldValue) {
+                localStorage.setItem('plain', JSON.stringify(newValue));
+            },
+            deep: true
+        },
+        encrypted: {
+            handler(newValue, oldValue) {
+                localStorage.setItem('encrypted', sjcl.encrypt(this.password, JSON.stringify(newValue)));
+            },
+            deep: true
+        }
+    },
+    computed: {
+        sortedBookmarks: function () {
+            function compare(a, b) {
+                [a, b].forEach(function (obj) {
+                    ['category', 'name', 'url'].forEach(item => {
+                        if (obj[item] === undefined) {
+                            obj[item] = '';
+                        }
+                    });
+                });
+                return a.category.localeCompare(b.category) || a.name.localeCompare(b.name) || a.url.localeCompare(b.url);
+            }
+
+            return this.bookmarks.sort(compare);
+        }
     },
     mounted: function () {
         this.unlock();
@@ -25,12 +69,14 @@ var app = new Vue({
     },
     methods: {
         init: function () {
-            Object.keys(this.settings).forEach(element => {
-                this.settings[element].value = localStorage.getItem(element);
+            var appObjects = ['settings', 'plain', 'bookmarks'];
+
+            appObjects.forEach(function (item, index) {
+                if (localStorage.getItem(item)) {
+                    app[item] = JSON.parse(localStorage.getItem(item));
+                }
             });
-            Object.keys(this.plain).forEach(element => {
-                this.plain[element].value = localStorage.getItem(element);
-            });
+
             if (localStorage.getItem('encrypted')) {
                 this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
             }
@@ -45,37 +91,23 @@ var app = new Vue({
                 Swal.fire('Local storage updated');
                 this.init();
                 this.$forceUpdate();
-            })
-                .catch((error) => {
+            }).catch((error) => {
+                Swal.fire({
+                    icon: 'error',
+                    text: JSON.stringify(error)
+                });
+            });
+        },
+        save: function () {
+            if (this.settings['jsonStorage'].value) {
+                axios.put(this.settings['jsonStorage'].value, localStorage).then(function (response) {
+                    Swal.fire('Remote storage updated');
+                }).catch((error) => {
                     Swal.fire({
                         icon: 'error',
                         text: JSON.stringify(error)
                     });
                 });
-        },
-        save: function () {
-            Object.keys(this.settings).forEach(element => {
-                if (this.settings[element].value) {
-                    localStorage.setItem(element, this.settings[element].value);
-                }
-            });
-
-            Object.keys(this.plain).forEach(element => {
-                localStorage.setItem(element, this.plain[element].value);
-            });
-
-            localStorage.setItem('encrypted', sjcl.encrypt(this.password, JSON.stringify(this.encrypted)));
-
-            if (this.settings['jsonStorage'].value) {
-                axios.put(this.settings['jsonStorage'].value, localStorage).then(function (response) {
-                    Swal.fire('Remote storage updated');
-                })
-                    .catch((error) => {
-                        Swal.fire({
-                            icon: 'error',
-                            text: JSON.stringify(error)
-                        });
-                    });
             }
         },
         copy: function (text) {
@@ -90,10 +122,10 @@ var app = new Vue({
                     '<input id="name" class="swal2-input" placeholder="Name">' +
                     '<input id="label" class="swal2-input" placeholder="Label">' +
                     '<select id="type" class="swal2-input">' +
-                    '<option value="url">url</option>' +
+                    '<option value="text">text</option>' +
                     '<option value="textarea">textarea</option>' +
                     '<option value="password">password</option>' +
-                    '<option value="link">link</option>' +
+                    '<option value="url">url</option>' +
                     '</select>' +
                     '<input type="checkbox" id="is_encrypted">' +
                     '<span class="swal2-label">Encrypted</span>',
@@ -109,15 +141,29 @@ var app = new Vue({
                 }
             }).then((result) => {
                 if (result.value) {
-                    this.encrypted[result.value[0]] = {};
-                    this.encrypted[result.value[0]].label = result.value[1];
-                    this.encrypted[result.value[0]].type = result.value[2];
+                    if (result.value[3]) {
+                        this.encrypted[result.value[0]] = {};
+                        this.encrypted[result.value[0]].label = result.value[1];
+                        this.encrypted[result.value[0]].type = result.value[2];
+                        localStorage.setItem('encrypted', sjcl.encrypt(this.password, JSON.stringify(this.encrypted)));
+                    } else {
+                        this.plain[result.value[0]] = {};
+                        this.plain[result.value[0]].label = result.value[1];
+                        this.plain[result.value[0]].type = result.value[2];
+                        localStorage.setItem('plain', JSON.stringify(this.plain));
+                    }
                     this.$forceUpdate();
                 }
             });
         },
-        remove: function (field) {
-            delete this.encrypted[field];
+        remove: function (field, is_encrypted) {
+            if (is_encrypted) {
+                delete this.encrypted[field];
+                localStorage.setItem('encrypted', sjcl.encrypt(this.password, JSON.stringify(this.encrypted)));
+            } else {
+                delete this.plain[field];
+                localStorage.setItem('plain', JSON.stringify(this.plain));
+            }
             this.$forceUpdate();
         },
         unlock: function () {
@@ -165,6 +211,14 @@ var app = new Vue({
         },
         refresh: function () {
             location.reload();
+        },
+        addBookmark: function () {
+            this.bookmarks.push(Object.assign({}, this.newBookmark));
+            localStorage.setItem("bookmarks", JSON.stringify(this.bookmarks));
+        },
+        deleteBookmark: function (index) {
+            this.bookmarks.splice(index, 1);
+            localStorage.setItem("bookmarks", JSON.stringify(this.bookmarks));
         }
     }
 });
