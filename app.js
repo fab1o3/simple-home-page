@@ -6,6 +6,9 @@ var app = new Vue({
         selectedTab: 'news',
         bookmarks: [],
         newBookmark: {},
+        radio: [],
+        newRadio: {},
+        playing: null,
         settings: {
             'jsonStorage': {
                 'value': null,
@@ -14,6 +17,7 @@ var app = new Vue({
             },
             'lockTimeout': {
                 'value': 300,
+                'idleTime': 1,
                 'label': 'Lock timeout (seconds)',
                 'type': 'text'
             }
@@ -65,11 +69,18 @@ var app = new Vue({
     },
     mounted: function () {
         this.unlock();
+
+        let self = this;
+
+        window.addEventListener('click', function (e) {
+            self.settings['lockTimeout'].idleTime = 0;
+        });
+
         setInterval(this.refresh, this.settings['lockTimeout'].value * 1000);
     },
     methods: {
         init: function () {
-            var appObjects = ['settings', 'plain', 'bookmarks'];
+            var appObjects = ['settings', 'plain', 'bookmarks', 'radio'];
 
             appObjects.forEach(function (item, index) {
                 if (localStorage.getItem(item)) {
@@ -196,6 +207,8 @@ var app = new Vue({
                         Swal.fire({
                             icon: 'error',
                             title: 'Password is not correct!'
+                        }).then((result) => {
+                            this.unlock();
                         });
                     }
                 } else {
@@ -210,7 +223,11 @@ var app = new Vue({
             }
         },
         refresh: function () {
-            location.reload();
+            if (this.settings['lockTimeout'].idleTime) {
+                // location.reload();
+                this.unlock();
+            }
+            this.settings['lockTimeout'].idleTime = 1;
         },
         addBookmark: function () {
             this.bookmarks.push(Object.assign({}, this.newBookmark));
@@ -219,6 +236,38 @@ var app = new Vue({
         deleteBookmark: function (index) {
             this.bookmarks.splice(index, 1);
             localStorage.setItem("bookmarks", JSON.stringify(this.bookmarks));
+        },
+        addRadio: function () {
+            this.radio.push(Object.assign({}, this.newRadio));
+            localStorage.setItem("radio", JSON.stringify(this.radio));
+        },
+        deleteRadio: function (index) {
+            this.radio.splice(index, 1);
+            localStorage.setItem("radio", JSON.stringify(this.radio));
+        },
+        playRadio: function (index) {
+            if (this.playing) {
+                if (this.radio[index].playing) {
+                    this.playing.stop();
+                } else {
+                    return;
+                }
+            }
+            this.playing = new Howl({
+                src: [this.radio[index].url],
+                html5: true
+            });
+
+            this.playing.play();
+            this.radio[index].playing = true;
+            this.$forceUpdate();
+        },
+        stopRadio: function (index) {
+            this.playing.stop();
+            this.playing.unload();
+            this.playing = null;
+            this.radio[index].playing = false;
+            this.$forceUpdate();
         }
     }
 });
