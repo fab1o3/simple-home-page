@@ -95,7 +95,12 @@ var app = new Vue({
             }
         },
         load: function () {
-            axios.get(this.settings['jsonStorage'].value).then((response) => {
+            axios.get(this.settings['jsonStorage'].value, {
+                auth: {
+                    username: this.storageUser,
+                    password: this.storagePassword
+                },
+            }).then((response) => {
                 let remoteStorage = response.data;
                 var keys = Object.keys(remoteStorage);
                 keys.forEach(function (key) {
