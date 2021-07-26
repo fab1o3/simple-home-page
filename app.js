@@ -2,6 +2,8 @@ var app = new Vue({
     el: '#app',
     data: {
         password: null,
+        storageUser: null,
+        storagePassword: null,
         isPasswordCorrect: false,
         selectedTab: 'news',
         bookmarks: [],
@@ -111,7 +113,15 @@ var app = new Vue({
         },
         save: function () {
             if (this.settings['jsonStorage'].value) {
-                axios.put(this.settings['jsonStorage'].value, localStorage).then(function (response) {
+                axios.put(this.settings['jsonStorage'].value, localStorage, {
+                    auth: {
+                        username: this.storageUser,
+                        password: this.storagePassword
+                    },
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).then(function (response) {
                     Swal.fire('Remote storage updated');
                 }).catch((error) => {
                     Swal.fire({

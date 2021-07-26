@@ -138,6 +138,13 @@
 			<div v-if="selectedTab === 'settings'">
 				<div class="field is-grouped" v-if="settings['jsonStorage'].value">
 					<div class="control">
+						<input class="input" type="text" placeholder="Username" v-model="storageUser">
+					</div>
+					<div class="control">
+						<input class="input" type="password" placeholder="Password" v-model="storagePassword">
+					</div>
+
+					<div class="control">
 						<button class="button" v-on:click="save()">Save to remote</button>
 					</div>
 					<div class="control">
