@@ -67,6 +67,9 @@ var app = new Vue({
             }
 
             return this.bookmarks.sort(compare);
+        },
+        sortedRadios: function () {
+            return this.radio.sort(this.compare);
         }
     },
     mounted: function () {
@@ -75,6 +78,7 @@ var app = new Vue({
         let self = this;
 
         window.addEventListener('click', function (e) {
+            self.settings = JSON.parse(localStorage.getItem('settings'));
             self.settings['lockTimeout'].idleTime = 0;
         });
 
@@ -283,6 +287,16 @@ var app = new Vue({
             this.playing = null;
             this.radio[index].playing = false;
             this.$forceUpdate();
+        },
+        compare: function (a, b) {
+            [a, b].forEach(function (obj) {
+                ['category', 'name', 'url'].forEach(item => {
+                    if (obj[item] === undefined) {
+                        obj[item] = '';
+                    }
+                });
+            });
+            return a.category.localeCompare(b.category) || a.name.localeCompare(b.name) || a.url.localeCompare(b.url);
         }
     }
 });

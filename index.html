@@ -124,7 +124,7 @@
 						<button class="button" v-on:click="addRadio()">New</button>
 					</div>
 				</div>
-				<ul id="radios" v-for="(item, index) in radio">
+				<ul id="radios" v-for="(item, index) in sortedRadios">
 					<li>
 						<a class="fas fa-times" v-on:click="deleteRadio(index)"></a>
 						<span class="has-tooltip-bottom" v-bind:data-tooltip="item.category">{{
