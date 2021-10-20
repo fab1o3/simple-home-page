@@ -78,7 +78,7 @@ var app = new Vue({
         let self = this;
 
         window.addEventListener('click', function (e) {
-            if (localStorage.getItem('settings)) {
+            if (localStorage.getItem('settings')) {
                 self.settings = JSON.parse(localStorage.getItem('settings'));
                 self.settings['lockTimeout'].idleTime = 0;
             }
