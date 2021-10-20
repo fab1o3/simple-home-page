@@ -78,8 +78,10 @@ var app = new Vue({
         let self = this;
 
         window.addEventListener('click', function (e) {
-            self.settings = JSON.parse(localStorage.getItem('settings'));
-            self.settings['lockTimeout'].idleTime = 0;
+            if (localStorage.getItem('settings)) {
+                self.settings = JSON.parse(localStorage.getItem('settings'));
+                self.settings['lockTimeout'].idleTime = 0;
+            }
         });
 
         setInterval(this.refresh, this.settings['lockTimeout'].value * 1000);
