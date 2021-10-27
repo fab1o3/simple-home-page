@@ -2,6 +2,8 @@ var app = new Vue({
     el: '#app',
     data: {
         password: null,
+        urlRoot: 'https://graph.microsoft.com/v1.0',
+        msalInstance: null,
         storageUser: null,
         storagePassword: null,
         isPasswordCorrect: false,
@@ -12,11 +14,6 @@ var app = new Vue({
         newRadio: {},
         playing: null,
         settings: {
-            'jsonStorage': {
-                'value': null,
-                'label': 'JSON Storage URL',
-                'type': 'url'
-            },
             'lockTimeout': {
                 'value': 300,
                 'idleTime': 1,
@@ -73,7 +70,7 @@ var app = new Vue({
         }
     },
     mounted: function () {
-        this.unlock();
+        this.login();
 
         let self = this;
 
@@ -101,11 +98,8 @@ var app = new Vue({
             }
         },
         load: function () {
-            axios.get(this.settings['jsonStorage'].value, {
-                auth: {
-                    username: this.storageUser,
-                    password: this.storagePassword
-                },
+            axios.get(this.urlRoot + '/me/drive/root:/000000004C12B506/settings.txt:/content', {
+                headers: {}
             }).then((response) => {
                 let remoteStorage = response.data;
                 var keys = Object.keys(remoteStorage);
@@ -123,24 +117,20 @@ var app = new Vue({
             });
         },
         save: function () {
-            if (this.settings['jsonStorage'].value) {
-                axios.put(this.settings['jsonStorage'].value, localStorage, {
-                    auth: {
-                        username: this.storageUser,
-                        password: this.storagePassword
-                    },
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                }).then(function (response) {
-                    Swal.fire('Remote storage updated');
-                }).catch((error) => {
-                    Swal.fire({
-                        icon: 'error',
-                        text: JSON.stringify(error)
-                    });
+            axios.put(this.urlRoot + '/me/drive/root:/000000004C12B506/settings.txt:/content', localStorage, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    Authorization: 'Bearer ' + this.password
+                }
+            }).then(function (response) {
+                Swal.fire('Remote storage updated');
+            }).catch((error) => {
+                Swal.fire({
+                    icon: 'error',
+                    text: JSON.stringify(error)
                 });
-            }
+            });
+
         },
         copy: function (text) {
             navigator.clipboard.writeText(text).then(function () {
@@ -238,6 +228,31 @@ var app = new Vue({
                 }
             });
         },
+        login: function () {
+            const msalConfig = {
+                auth: {
+                    clientId: '78036dbf-d50f-43d7-92b0-6d902450c5d0'
+                }
+            };
+
+            this.msalInstance = new msal.PublicClientApplication(msalConfig);
+
+            const request = {
+                scopes: ["Files.Read.All", "Files.ReadWrite", "Mail.Read", "User.Read"],
+                redirectUri: window.location.href
+            };
+
+            this.msalInstance.loginPopup(request).then(response => {
+                this.password = response.accessToken;
+                this.init();
+            }).catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    text: JSON.stringify(error)
+                });
+            });
+
+        },
         isActive: function (name) {
             if (this.selectedTab === name) {
                 return 'is-active';
@@ -302,4 +317,3 @@ var app = new Vue({
         }
     }
 });
-
