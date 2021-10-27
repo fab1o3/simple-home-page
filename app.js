@@ -2,11 +2,10 @@ var app = new Vue({
     el: '#app',
     data: {
         password: null,
+        isPasswordCorrect: false,
         urlRoot: 'https://graph.microsoft.com/v1.0',
         msalInstance: null,
-        storageUser: null,
-        storagePassword: null,
-        isPasswordCorrect: false,
+        token: null,
         selectedTab: 'news',
         bookmarks: [],
         newBookmark: {},
@@ -99,7 +98,9 @@ var app = new Vue({
         },
         load: function () {
             axios.get(this.urlRoot + '/me/drive/root:/000000004C12B506/settings.txt:/content', {
-                headers: {}
+                headers: {
+                    Authorization: 'Bearer ' + this.token
+                }
             }).then((response) => {
                 let remoteStorage = response.data;
                 var keys = Object.keys(remoteStorage);
@@ -120,7 +121,7 @@ var app = new Vue({
             axios.put(this.urlRoot + '/me/drive/root:/000000004C12B506/settings.txt:/content', localStorage, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: 'Bearer ' + this.password
+                    Authorization: 'Bearer ' + this.token
                 }
             }).then(function (response) {
                 Swal.fire('Remote storage updated');
@@ -243,8 +244,8 @@ var app = new Vue({
             };
 
             this.msalInstance.loginPopup(request).then(response => {
-                this.password = response.accessToken;
-                this.init();
+                this.token = response.accessToken;
+                this.unlock();
             }).catch(error => {
                 Swal.fire({
                     icon: 'error',
@@ -317,3 +318,4 @@ var app = new Vue({
         }
     }
 });
+
