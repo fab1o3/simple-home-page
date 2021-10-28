@@ -481,6 +481,7 @@ var app = new Vue({
         refreshFeeds: function () {
             let feedUrls = JSON.parse(this.settings.feedUrls.value);
             let singleFeed = Math.round(this.settings.totalFeeds.value / feedUrls.length);
+            this.feeds = [];
             this.news.refreshDate = new Date();
             feedUrls.forEach((url) => {
                 this.news.parser.parseURL(url, (err, feed) => {
