@@ -17,6 +17,7 @@
 	<script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 	<script defer src="https://cdn.jsdelivr.net/npm/howler@2.2.1/dist/howler.min.js"></script>
 	<script defer src="https://alcdn.msauth.net/browser/2.18.0/js/msal-browser.min.js"></script>
+	<script defer src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.8/sjcl.min.js"></script>
 	<script defer src="app.js"></script>
 </head>
 
@@ -29,6 +30,8 @@
 					<li v-bind:class="isActive('bookmarks')" v-on:click="selectedTab = 'bookmarks'"><a>Bookmarks</a>
 					</li>
 					<li v-bind:class="isActive('notes')" v-on:click="selectedTab = 'notes'"><a>Notes</a></li>
+					<li v-bind:class="isActive('document')" v-on:click="selectedTab = 'document'"><a>Documents</a>
+					</li>
 					<li v-bind:class="isActive('radio')" v-on:click="selectedTab = 'radio'"><a>Radio</a></li>
 					<li v-bind:class="isActive('settings')" v-on:click="selectedTab = 'settings'"><a>Settings</a></li>
 				</ul>
@@ -103,6 +106,24 @@
 						</div>
 					</template>
 				</div>
+			</div>
+
+			<div v-if="selectedTab === 'document'">
+				<div class="columns">
+					<div class="column">
+						<input class="input" id="file" type="file" v-on:change="processFile($event)" />
+					</div>
+					<div class="column is-1">
+						<button id="saveButton" class="button" v-on:click="saveDocument()">Save</button>
+					</div>
+
+				</div>
+				<div class="columns">
+					<div class="column">
+						<button class="button" type="button" target="_blank" v-on:click="viewDocument()">View</button>
+					</div>
+				</div>
+				<embed v-if="url" v-bind:src="url" width="100%" style="height: 600px;" />
 			</div>
 
 			<div v-if="selectedTab === 'radio'">
