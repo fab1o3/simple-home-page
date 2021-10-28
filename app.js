@@ -21,7 +21,11 @@ var app = new Vue({
             }
         },
         plain: {},
-        encrypted: {}
+        encrypted: {},
+        chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+        lookup: new Uint8Array(256),
+        url: '',
+        file: {}
     },
     watch: {
         settings: {
@@ -72,6 +76,11 @@ var app = new Vue({
         this.login();
 
         let self = this;
+
+        // Use a lookup table to find the index.
+        for (var i = 0; i < this.chars.length; i++) {
+            this.lookup[this.chars.charCodeAt(i)] = i;
+        }
 
         window.addEventListener('click', function (e) {
             if (localStorage.getItem('settings')) {
@@ -315,7 +324,110 @@ var app = new Vue({
                 });
             });
             return a.category.localeCompare(b.category) || a.name.localeCompare(b.name) || a.url.localeCompare(b.url);
+        },
+        encode: function (arraybuffer) {
+            var bytes = new Uint8Array(arraybuffer),
+                i, len = bytes.length, base64 = "";
+
+            for (i = 0; i < len; i += 3) {
+                base64 += this.chars[bytes[i] >> 2];
+                base64 += this.chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
+                base64 += this.chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
+                base64 += this.chars[bytes[i + 2] & 63];
+            }
+
+            if ((len % 3) === 2) {
+                base64 = base64.substring(0, base64.length - 1) + "=";
+            } else if (len % 3 === 1) {
+                base64 = base64.substring(0, base64.length - 2) + "==";
+            }
+
+            return base64;
+        },
+        decode: function (base64) {
+            var bufferLength = base64.length * 0.75,
+                len = base64.length, i, p = 0,
+                encoded1, encoded2, encoded3, encoded4;
+
+            if (base64[base64.length - 1] === "=") {
+                bufferLength--;
+                if (base64[base64.length - 2] === "=") {
+                    bufferLength--;
+                }
+            }
+
+            var arraybuffer = new ArrayBuffer(bufferLength),
+                bytes = new Uint8Array(arraybuffer);
+
+            for (i = 0; i < len; i += 4) {
+                encoded1 = this.lookup[base64.charCodeAt(i)];
+                encoded2 = this.lookup[base64.charCodeAt(i + 1)];
+                encoded3 = this.lookup[base64.charCodeAt(i + 2)];
+                encoded4 = this.lookup[base64.charCodeAt(i + 3)];
+
+                bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+                bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+                bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+            }
+
+            return arraybuffer;
+        },
+        processFile(event) {
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                this.file.name = event.target.files[0].name;
+                this.file.type = event.target.files[0].type;
+                this.file.content = this.encode(e.target.result);
+            }
+            reader.readAsArrayBuffer(event.target.files[0]);
+        },
+        saveDocument: function () {
+            let encrypted = sjcl.encrypt(this.password, JSON.stringify(this.file));
+            axios.put(this.urlRoot + '/me/drive/root:/000000004C12B506/document.txt:/content', encrypted, {
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    Authorization: 'Bearer ' + this.token
+                }
+            }).then((response) => {
+                Swal.fire('Document saved!');
+            }).catch((error) => {
+                Swal.fire({
+                    icon: 'error',
+                    text: JSON.stringify(error)
+                });
+            });
+        },
+        viewDocument: function () {
+            axios.get(this.urlRoot + '/me/drive/root:/000000004C12B506/document.txt:/content', {
+                headers: {
+                    Authorization: 'Bearer ' + this.token
+                },
+            }).then((response) => {
+                this.message = null;
+                let decrypted = JSON.parse(sjcl.decrypt(this.password, JSON.stringify(response.data)));
+
+                switch (decrypted.type) {
+                    case 'application/pdf':
+                        this.url = window.URL.createObjectURL(new Blob([this.decode(decrypted.content)], {
+                            type: decrypted.type
+                        }));
+                        break;
+                    default:
+                        let link = document.createElement('a');
+                        link.download = decrypted.name;
+                        link.target = '_blank';
+                        link.href = window.URL.createObjectURL(new Blob([this.decode(decrypted.content)], {
+                            type: decrypted.type
+                        }));
+                        link.click();
+                        break;
+                }
+            }).catch((error) => {
+                Swal.fire({
+                    icon: 'error',
+                    text: JSON.stringify(error)
+                });
+            });
         }
     }
 });
-
