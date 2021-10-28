@@ -18,6 +18,7 @@
 	<script defer src="https://cdn.jsdelivr.net/npm/howler@2.2.1/dist/howler.min.js"></script>
 	<script defer src="https://alcdn.msauth.net/browser/2.18.0/js/msal-browser.min.js"></script>
 	<script defer src="https://cdnjs.cloudflare.com/ajax/libs/sjcl/1.0.8/sjcl.min.js"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/rss-parser@3.12.0/dist/rss-parser.min.js"></script>
 	<script defer src="app.js"></script>
 </head>
 
@@ -34,6 +35,16 @@
 					</li>
 					<li v-bind:class="isActive('radio')" v-on:click="selectedTab = 'radio'"><a>Radio</a></li>
 					<li v-bind:class="isActive('settings')" v-on:click="selectedTab = 'settings'"><a>Settings</a></li>
+				</ul>
+			</div>
+
+			<div v-if="selectedTab === 'news'">
+				<h1>Last update: {{ formatDate(news.refreshDate) }}</h1>
+				<ul id="feeds">
+					<li v-for="feed in news.feeds">
+						<a v-bind:href="feed.link" target="_blank" class="has-tooltip-bottom has-tooltip-multiline"
+							v-bind:data-tooltip="feed.content">{{ formatDate(feed.pubDate) + feed.title }}</a>
+					</li>
 				</ul>
 			</div>
 
