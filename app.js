@@ -7,25 +7,46 @@ var app = new Vue({
         msalInstance: null,
         token: null,
         selectedTab: 'news',
+        // news
+        news: {
+            feeds: [],
+            parser: null,
+            refreshDate: null
+        },
+        // bookmarks
         bookmarks: [],
         newBookmark: {},
+        // radio
         radio: [],
         newRadio: {},
         playing: null,
+        // notes
+        plain: {},
+        encrypted: {},
+        // document
+        chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+        lookup: new Uint8Array(256),
+        url: '',
+        file: {},
+        // settings
         settings: {
             'lockTimeout': {
                 'value': 300,
                 'idleTime': 1,
                 'label': 'Lock timeout (seconds)',
                 'type': 'text'
+            },
+            'feedUrls': {
+                'value': [],
+                'label': 'Feeds',
+                'type': 'textarea'
+            },
+            'totalFeeds': {
+                'value': 20,
+                'label': 'Total feeds',
+                'type': 'text'
             }
-        },
-        plain: {},
-        encrypted: {},
-        chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
-        lookup: new Uint8Array(256),
-        url: '',
-        file: {}
+        }
     },
     watch: {
         settings: {
@@ -82,6 +103,8 @@ var app = new Vue({
             this.lookup[this.chars.charCodeAt(i)] = i;
         }
 
+        this.news.parser = new RSSParser();
+
         window.addEventListener('click', function (e) {
             if (localStorage.getItem('settings')) {
                 self.settings = JSON.parse(localStorage.getItem('settings'));
@@ -104,6 +127,8 @@ var app = new Vue({
             if (localStorage.getItem('encrypted')) {
                 this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
             }
+
+            this.refreshFeeds();
         },
         load: function () {
             axios.get(this.urlRoot + '/me/drive/root:/000000004C12B506/settings.txt:/content', {
@@ -269,6 +294,7 @@ var app = new Vue({
             }
         },
         refresh: function () {
+            this.refreshFeeds();
             if (this.settings['lockTimeout'].idleTime) {
                 // location.reload();
                 this.unlock();
@@ -428,6 +454,57 @@ var app = new Vue({
                     text: JSON.stringify(error)
                 });
             });
-        }
+        },
+        addZero: function (i) {
+            if (i < 10) {
+                i = "0" + i;
+            }
+            return i;
+        },
+        formatDate: function (date) {
+            if (!date) {
+                return;
+            }
+            if (typeof date === 'string') {
+                date = new Date(date);
+            }
+            return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' ' + this.addZero(date.getHours()) + ':' + this.addZero(date.getMinutes()) + ' ';
+        },
+        formatDescription: function (description) {
+            let regex = /(<([^>]+)>)/ig;
+            description = description.replace(regex, '').trim();
+            let txt = document.createElement('textarea');
+            txt.innerHTML = description;
+            description = txt.value;
+            return (description.length > 256) ? description.substr(0, 255) + '...' : description;
+        },
+        refreshFeeds: function () {
+            let feedUrls = JSON.parse(this.settings.feedUrls.value);
+            let singleFeed = Math.round(this.settings.totalFeeds.value / feedUrls.length);
+            this.news.refreshDate = new Date();
+            feedUrls.forEach((url) => {
+                this.news.parser.parseURL(url, (err, feed) => {
+                    if (err) {
+                        throw err;
+                    }
+
+                    if (feed.items) {
+                        feed.items.forEach((value, key) => {
+                            value.content = this.formatDescription(value.content);
+                            if (key > singleFeed) {
+                                return false;
+                            }
+                            this.news.feeds.push(value);
+                        });
+
+                        this.news.feeds.sort(function (a, b) {
+                            // Turn your strings into dates, and then subtract them
+                            // to get a value that is either negative, positive, or zero.
+                            return new Date(b.pubDate) - new Date(a.pubDate);
+                        });
+                    }
+                });
+            });
+        },
     }
 });
