@@ -116,7 +116,7 @@ var app = new Vue({
         setInterval(this.refresh, this.settings['lockTimeout'].value * 1000);
     },
     methods: {
-        init: function () {
+        init: function (is_first) {
             var appObjects = ['settings', 'plain', 'bookmarks', 'radio'];
 
             appObjects.forEach(function (item, index) {
@@ -129,7 +129,9 @@ var app = new Vue({
                 this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
             }
 
-            this.refreshFeeds();
+            if(is_first) {
+                this.refreshFeeds();
+            }
         },
         load: function () {
             axios.get(this.urlRoot + '/me/drive/root:/000000004C12B506/settings.txt:/content', {
@@ -224,7 +226,7 @@ var app = new Vue({
             }
             this.$forceUpdate();
         },
-        unlock: function () {
+        unlock: function (is_first) {
             Swal.fire({
                 title: 'Enter your password',
                 input: 'password',
@@ -248,7 +250,7 @@ var app = new Vue({
                 if (localStorage.getItem('encrypted')) {
                     try {
                         this.isPasswordCorrect = true;
-                        this.init();
+                        this.init(is_first);
                     } catch {
                         this.isPasswordCorrect = false;
                         Swal.fire({
@@ -260,7 +262,7 @@ var app = new Vue({
                     }
                 } else {
                     this.isPasswordCorrect = true;
-                    this.init();
+                    this.init(is_first);
                 }
             });
         },
@@ -280,7 +282,7 @@ var app = new Vue({
 
             this.msalInstance.loginPopup(request).then(response => {
                 this.token = response.accessToken;
-                this.unlock();
+                this.unlock(true);
             }).catch(error => {
                 Swal.fire({
                     icon: 'error',
