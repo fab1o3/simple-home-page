@@ -111,7 +111,8 @@ var app = new Vue({
                 self.settings['lockTimeout'].idleTime = 0;
             }
         });
-
+        
+        setInterval(this.refreshFeeds(), 1800 * 1000);
         setInterval(this.refresh, this.settings['lockTimeout'].value * 1000);
     },
     methods: {
@@ -294,7 +295,6 @@ var app = new Vue({
             }
         },
         refresh: function () {
-            this.refreshFeeds();
             if (this.settings['lockTimeout'].idleTime) {
                 // location.reload();
                 this.unlock();
