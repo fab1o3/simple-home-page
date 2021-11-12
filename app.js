@@ -455,7 +455,7 @@ var app = new Vue({
                     icon: 'error',
                     text: JSON.stringify(error)
                 });
-                if(error.status === '401') {
+                if(error.response.status === '401') {
                     let request = {
                         scopes: ["Files.Read.All", "Files.ReadWrite", "Mail.Read", "User.Read"],
                         redirectUri: window.location.href
