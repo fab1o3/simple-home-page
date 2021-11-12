@@ -442,7 +442,7 @@ var app = new Vue({
                         redirectUri: window.location.href
                     };
 
-                    this.msalInstance.acquireSilentToken(request).then(response => {
+                    this.msalInstance.acquireTokenSilent(request).then(response => {
                         this.token = response.accessToken;
                     }).catch(error => {
                         this.msalInstance.acquireTokenPopup(request).then(response => {
