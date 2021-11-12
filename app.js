@@ -111,7 +111,7 @@ var app = new Vue({
                 self.settings['lockTimeout'].idleTime = 0;
             }
         });
-        
+
         setInterval(this.refreshFeeds, 1800 * 1000);
         setInterval(this.refresh, this.settings['lockTimeout'].value * 1000);
     },
@@ -129,7 +129,7 @@ var app = new Vue({
                 this.encrypted = JSON.parse(sjcl.decrypt(this.password, localStorage.getItem('encrypted')));
             }
 
-            if(is_first) {
+            if (is_first) {
                 this.refreshFeeds();
             }
         },
@@ -148,10 +148,7 @@ var app = new Vue({
                 this.init();
                 this.$forceUpdate();
             }).catch((error) => {
-                Swal.fire({
-                    icon: 'error',
-                    text: JSON.stringify(error)
-                });
+                Swal.fire({icon: 'error', text: JSON.stringify(error)});
             });
         },
         save: function () {
@@ -163,10 +160,7 @@ var app = new Vue({
             }).then(function (response) {
                 Swal.fire('Remote storage updated');
             }).catch((error) => {
-                Swal.fire({
-                    icon: 'error',
-                    text: JSON.stringify(error)
-                });
+                Swal.fire({icon: 'error', text: JSON.stringify(error)});
             });
 
         },
@@ -253,10 +247,7 @@ var app = new Vue({
                         this.init(is_first);
                     } catch {
                         this.isPasswordCorrect = false;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Password is not correct!'
-                        }).then((result) => {
+                        Swal.fire({icon: 'error', title: 'Password is not correct!'}).then((result) => {
                             this.unlock();
                         });
                     }
@@ -284,10 +275,7 @@ var app = new Vue({
                 this.token = response.accessToken;
                 this.unlock(true);
             }).catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    text: JSON.stringify(error)
-                });
+                Swal.fire({icon: 'error', text: JSON.stringify(error)});
             });
 
         },
@@ -419,10 +407,7 @@ var app = new Vue({
             }).then((response) => {
                 Swal.fire('Document saved!');
             }).catch((error) => {
-                Swal.fire({
-                    icon: 'error',
-                    text: JSON.stringify(error)
-                });
+                Swal.fire({icon: 'error', text: JSON.stringify(error)});
             });
         },
         viewDocument: function () {
@@ -451,21 +436,23 @@ var app = new Vue({
                         break;
                 }
             }).catch((error) => {
-                Swal.fire({
-                    icon: 'error',
-                    text: JSON.stringify(error)
-                });
-                if(error.response.status === '401') {
+                if (error.response.status === 401) {
                     let request = {
                         scopes: ["Files.Read.All", "Files.ReadWrite", "Mail.Read", "User.Read"],
                         redirectUri: window.location.href
                     };
-        
+
                     this.msalInstance.acquireSilentToken(request).then(response => {
                         this.token = response.accessToken;
                     }).catch(error => {
-                        
+                        this.msalInstance.acquireTokenPopup(request).then(response => {
+                            this.token = response.accessToken;
+                        }).catch(error => {
+                            Swal.fire({ icon: 'error', text: JSON.stringify(error) });
+                        });
                     });
+                } else {
+                    Swal.fire({ icon: 'error', text: JSON.stringify(error) });
                 }
             });
         },
