@@ -121,7 +121,7 @@
 			<div v-if="selectedTab === 'document'">
 				<div class="columns">
 					<div class="column">
-						<input class="input" id="file" type="file" v-on:change="processFile($event)" v-on:drop="processFile($event) />
+						<input class="input" id="file" type="file" v-on:change="processFile($event)" v-on:drop="processFile($event)" />
 					</div>
 					<div class="column is-1">
 						<button id="saveButton" class="button" v-on:click="saveDocument()">Save</button>
