@@ -111,9 +111,6 @@ var app = new Vue({
                 self.settings['lockTimeout'].idleTime = 0;
             }
         });
-
-        setInterval(this.refreshFeeds, 1800 * 1000);
-        setInterval(this.refresh, this.settings['lockTimeout'].value * 1000);
     },
     methods: {
         init: function (is_first) {
@@ -131,7 +128,10 @@ var app = new Vue({
 
             if (is_first) {
                 this.refreshFeeds();
+                setInterval(this.refreshFeeds, 1800 * 1000);
+                setInterval(this.refresh, this.settings['lockTimeout'].value * 1000);
             }
+            
         },
         load: function () {
             axios.get(this.urlRoot + '/me/drive/root:/000000004C12B506/settings.txt:/content', {
