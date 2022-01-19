@@ -48,7 +48,7 @@ var app = new Vue({
             },
             'pdfExt': {
                 'value': '',
-                'label': 'Pdf plugin is installed',
+                'label': 'Pdf extension url',
                 'type': 'text'
             }
         }
@@ -429,9 +429,13 @@ var app = new Vue({
                         /*this.url = window.URL.createObjectURL(new Blob([this.decode(decrypted.content)], {
                             type: decrypted.type
                         }));*/
-                        window.open(window.URL.createObjectURL(new Blob([this.decode(decrypted.content)], {
+                        let pdfURL = window.URL.createObjectURL(new Blob([this.decode(decrypted.content)], {
                             type: decrypted.type
-                        })));
+                        }));
+                        if (this.settings['pdfExt'].value) {
+                            pdfURL = this.settings['pdfExt'].value + pdfURL;
+                        }
+                        window.open(pdfURL);
                         break;
                     default:
                         let link = document.createElement('a');
