@@ -420,11 +420,12 @@ var app = new Vue({
                 let decrypted = JSON.parse(sjcl.decrypt(this.password, JSON.stringify(response.data)));
 
                 switch (decrypted.type) {
-                    case 'application/pdf':
+                    /*case 'application/pdf':
                         this.url = window.URL.createObjectURL(new Blob([this.decode(decrypted.content)], {
                             type: decrypted.type
                         }));
-                        break;
+                        break;*/
+                    case 'application/pdf':
                     default:
                         let link = document.createElement('a');
                         link.download = decrypted.name;
