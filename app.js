@@ -45,6 +45,11 @@ var app = new Vue({
                 'value': 20,
                 'label': 'Total feeds',
                 'type': 'text'
+            },
+            'pdfExt': {
+                'value': '',
+                'label': 'Pdf plugin is installed',
+                'type': 'text'
             }
         }
     },
