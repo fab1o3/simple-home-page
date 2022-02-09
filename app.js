@@ -426,16 +426,15 @@ var app = new Vue({
 
                 switch (decrypted.type) {
                     case 'application/pdf':
-                        /*this.url = window.URL.createObjectURL(new Blob([this.decode(decrypted.content)], {
-                            type: decrypted.type
-                        }));*/
                         let pdfURL = window.URL.createObjectURL(new Blob([this.decode(decrypted.content)], {
                             type: decrypted.type
                         }));
                         if (this.settings['pdfExt'].value) {
                             pdfURL = this.settings['pdfExt'].value + pdfURL;
+                            window.open(pdfURL);
+                        } else {
+                            this.url = pdfURL;
                         }
-                        window.open(pdfURL);
                         break;
                     default:
                         let link = document.createElement('a');
