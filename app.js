@@ -253,7 +253,7 @@ var app = new Vue({
                     } catch {
                         this.isPasswordCorrect = false;
                         Swal.fire({icon: 'error', title: 'Password is not correct!'}).then((result) => {
-                            this.unlock();
+                            this.unlock(is_first);
                         });
                     }
                 } else {
