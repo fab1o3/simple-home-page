@@ -69,7 +69,7 @@
 				<ul id="bookmarks" v-for="(item, index) in sortedBookmarks">
 					<li>
 						<a v-bind:href="item.url" target="_blank" class="has-tooltip-bottom"
-							v-bind:data-tooltip="item.category">{{ item.name ? item.name : item.url }}</a>
+							v-bind:data-tooltip="item.category">{{ item.name ? item.name : ((item.url.length > 50) ? item.url.substr(0, 49) + '&hellip;' : item.url) }}</a>
 						<a class="delete" v-on:click="deleteBookmark(index)"></a>
 					</li>
 				</ul>
