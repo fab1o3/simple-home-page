@@ -165,7 +165,11 @@ var app = new Vue({
             }).then(function (response) {
                 Swal.fire('Remote storage updated');
             }).catch((error) => {
-                Swal.fire({icon: 'error', text: JSON.stringify(error)});
+                if (error.response.status === 401) {
+                    this.refreshToken();
+                } else {
+                    Swal.fire({ icon: 'error', text: JSON.stringify(error) });
+                }
             });
 
         },
@@ -283,6 +287,22 @@ var app = new Vue({
                 Swal.fire({icon: 'error', text: JSON.stringify(error)});
             });
 
+        },
+        refreshToken: function() {
+             let request = {
+                scopes: ["Files.Read.All", "Files.ReadWrite", "Mail.Read", "User.Read"],
+                redirectUri: window.location.href
+            };
+
+            this.msalInstance.acquireTokenSilent(request).then(response => {
+                this.token = response.accessToken;
+            }).catch(error => {
+                this.msalInstance.acquireTokenPopup(request).then(response => {
+                    this.token = response.accessToken;
+                }).catch(error => {
+                    Swal.fire({ icon: 'error', text: JSON.stringify(error) });
+                });
+            });
         },
         isActive: function (name) {
             if (this.selectedTab === name) {
@@ -448,20 +468,7 @@ var app = new Vue({
                 }
             }).catch((error) => {
                 if (error.response.status === 401) {
-                    let request = {
-                        scopes: ["Files.Read.All", "Files.ReadWrite", "Mail.Read", "User.Read"],
-                        redirectUri: window.location.href
-                    };
-
-                    this.msalInstance.acquireTokenSilent(request).then(response => {
-                        this.token = response.accessToken;
-                    }).catch(error => {
-                        this.msalInstance.acquireTokenPopup(request).then(response => {
-                            this.token = response.accessToken;
-                        }).catch(error => {
-                            Swal.fire({ icon: 'error', text: JSON.stringify(error) });
-                        });
-                    });
+                    this.refreshToken();
                 } else {
                     Swal.fire({ icon: 'error', text: JSON.stringify(error) });
                 }
