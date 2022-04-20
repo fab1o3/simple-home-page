@@ -26,12 +26,10 @@
 		<div id="app" class="container">
 			<div class="tabs">
 				<ul>
+					<li v-bind:class="isActive('bookmarks')" v-on:click="selectedTab = 'bookmarks'"><a>Bookmarks</a></li>
 					<li v-bind:class="isActive('news')" v-on:click="selectedTab = 'news'"><a>News</a></li>
-					<li v-bind:class="isActive('bookmarks')" v-on:click="selectedTab = 'bookmarks'"><a>Bookmarks</a>
-					</li>
 					<li v-bind:class="isActive('notes')" v-on:click="selectedTab = 'notes'"><a>Notes</a></li>
-					<li v-bind:class="isActive('document')" v-on:click="selectedTab = 'document'"><a>Documents</a>
-					</li>
+					<li v-bind:class="isActive('document')" v-on:click="selectedTab = 'document'"><a>Documents</a></li>
 					<li v-bind:class="isActive('radio')" v-on:click="selectedTab = 'radio'"><a>Radio</a></li>
 					<li v-bind:class="isActive('settings')" v-on:click="selectedTab = 'settings'"><a>Settings</a></li>
 				</ul>
