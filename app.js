@@ -62,7 +62,9 @@ var app = new Vue({
         },
         bookmarks: {
             handler(newValue, oldValue) {
-                localStorage.setItem('bookmarks', JSON.stringify(newValue));
+                if(isPasswordCorrect) {
+                    localStorage.setItem('bookmarks', JSON.stringify(newValue));
+                }
             },
             deep: true
         },
