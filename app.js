@@ -6,7 +6,7 @@ var app = new Vue({
         urlRoot: 'https://graph.microsoft.com/v1.0',
         msalInstance: null,
         token: null,
-        selectedTab: 'news',
+        selectedTab: 'bookmarks',
         // news
         news: {
             feeds: [],
