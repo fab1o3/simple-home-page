@@ -282,7 +282,8 @@ var app = new Vue({
                 redirectUri: window.location.href
             };
 
-            this.msalInstance.loginPopup(request).then(response => {
+            //this.msalInstance.loginPopup(request).then(response => {
+            this.msalInstance.loginRedirect(request).then(response => {
                 this.token = response.accessToken;
                 this.unlock(true);
             }).catch(error => {
