@@ -282,11 +282,18 @@ var app = new Vue({
                 redirectUri: window.location.href
             };
 
-            //this.msalInstance.loginPopup(request).then(response => {
-            this.msalInstance.loginRedirect(request).then(response => {
+            /*this.msalInstance.loginPopup(request).then(response => {
                 this.token = response.accessToken;
                 this.unlock(true);
             }).catch(error => {
+                Swal.fire({icon: 'error', text: JSON.stringify(error)});
+            });*/
+            
+            this.msalInstance.loginRedirect(request);
+            this.msalInstance.handleRedirectPromise().then((tokenResponse) => {
+                this.token = tokenResponse.accessToken;
+                this.unlock(true);
+            }).catch((error) => {
                 Swal.fire({icon: 'error', text: JSON.stringify(error)});
             });
 
