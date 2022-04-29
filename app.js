@@ -294,7 +294,9 @@ var app = new Vue({
                 this.token = tokenResponse.accessToken;
                 this.unlock(true);
             }).catch((error) => {
-                Swal.fire({icon: 'error', text: JSON.stringify(error)});
+                if(error) {
+                    Swal.fire({icon: 'error', text: JSON.stringify(error)});
+                }
             });
 
         },
