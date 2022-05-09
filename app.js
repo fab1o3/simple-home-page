@@ -134,8 +134,10 @@ var app = new Vue({
             }
 
             if (is_first) {
-                this.refreshFeeds();
-                setInterval(this.refreshFeeds, 1800 * 1000);
+                if(this.settings.feedUrls.value) {
+                    this.refreshFeeds();
+                    setInterval(this.refreshFeeds, 1800 * 1000);
+                }
                 setInterval(this.refresh, this.settings['lockTimeout'].value * 1000);
             }
             
